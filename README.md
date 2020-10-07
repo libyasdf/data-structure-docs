@@ -36,3 +36,8 @@ git branch -M main
 git remote add origin https://github.com/libyasdf/data-structure-docs.git
 git push -u origin main
 ```
+# github action
+[action配置](https://www.cnblogs.com/babycomeon/p/12771624.html)  
+[Workflow syntax for GitHub Actions](https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions)  
+[Developer setting/personal access tokens权限范围与部署是否permission有关](https://docs.github.com/en/free-pro-team@latest/developers/apps/scopes-for-oauth-apps)  
+
