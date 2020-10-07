@@ -6,4 +6,5 @@ export default defineConfig({
   base: "/data-structure",
   publicPath: "/data-structure/",
   // more config: https://d.umijs.org/config
+  outputPath: "docs-dist",
 });
