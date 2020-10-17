@@ -4,7 +4,7 @@ hero:
   desc: dumi site app 脚手架
   actions:
     - text: 快速上手
-      link: /getting-started
+      link: /js-book/charpt-one
 features:
   - icon: https://gw.alipayobjects.com/zos/bmw-prod/881dc458-f20b-407b-947a-95104b5ec82b/k79dm8ih_w144_h144.png
     title: 特性 1
@@ -17,3 +17,5 @@ features:
     desc: Balabala
 footer: Open-source MIT Licensed | Copyright © 2020<br />Powered by [dumi](https://d.umijs.org)
 ---
+
+getting-started

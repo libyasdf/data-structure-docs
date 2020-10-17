@@ -20,6 +20,8 @@ Build site app,
 ```bash
 $ npm run build
 ```
+**2020/10/16 执行build后push，blog样式更新**
+
 # github rename master branch
 **…or push an existing repository from the command line**
 ```
