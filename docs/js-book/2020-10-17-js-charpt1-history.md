@@ -1,6 +1,6 @@
 ---
 order: 1
-title: js历史与简介
+title: 第一章 js历史与简介
 group:
     title: 红宝书
     order: 1
@@ -79,7 +79,7 @@ BOM 主要针对浏览器窗口和子窗口（frame），不过人们通常会�
 
 
 
-# JavaScript 版本
+## JavaScript 版本
 
 JavaScript 是一门用来与网页交互的脚本语言，包含以下三个组成部分。
 *  ECMAScript：由 ECMA-262 定义并提供核心功能。
