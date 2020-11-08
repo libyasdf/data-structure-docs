@@ -16,6 +16,16 @@ note:标识符中的字母可以是扩展 ASCII（Extended ASCII）中的字母�
 
 # 数据类型
 
+## string
+
+>\xnn 以十六进制编码 nn 表示的字符（其中 n 是十六进制数字 0~F），例如\x41 等于"A"  
+\unnnn 以十六进制编码 nnnn 表示的 Unicode 字符（其中 n 是十六进制数字 0~F），例如\u03a3 等于希腊字
+符"Σ"
+
+```
+let text = "This is the letter sigma: \u03a3.";
+```
+
 # 流控制语句
 
 # 理解函数
