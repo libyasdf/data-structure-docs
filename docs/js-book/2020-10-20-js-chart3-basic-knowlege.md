@@ -25,6 +25,76 @@ note:标识符中的字母可以是扩展 ASCII（Extended ASCII）中的字母�
 ```
 let text = "This is the letter sigma: \u03a3.";
 ```
+### 模版字面量
+
+*模版字面量会计算里面的空格、换行，可以被「.length」和「 === '\n'」*
+
+```
+将表达式转换为字符串时会调用 toString()：
+
+let foo = { toString: () => 'World' }; 
+console.log(`Hello, ${ foo }!`); // Hello, World!
+```
+
+可以直接调用函数方法：
+```
+function zipTag(strings, ...expressions) { 
+ // log strings [ '', ' + ', ' = ', '' ]
+ // log expressions [ 6, 9, 15 ]
+
+ return strings[0] + 
+ expressions.map((e, i) => `${e}${strings[i + 1]}`) 
+ .join(''); 
+} 
+
+let taggedResult = zipTag`${ a } + ${ b } = ${ a + b }`;
+```
+
+### String.raw``
+保留原始字符串
+```
+function printRaw(strings) { 
+    // strings [\u00A9, \n]
+
+ for (const string of strings) { 
+     // 真实的符号
+ console.log(string); 
+ } 
+
+ for (const rawString of strings.raw) { 
+    // 原本的样子 
+ console.log(rawString); 
+ } 
+}
+
+printRaw`\u00A9${ 'and' }\n`;
+```
+
+### Symbol
+
+`Object.getOwnPropertyNames()`不返回不可枚举的symbol，所以使用`Object.getOwnPropertySymbols()`来返回。
+
+`Object.getOwnPropertyDescriptors()`会返回同时包含常规和符号属性描述符的对象。
+
+键值混着symbol和string的，`Reflect.ownKeys(o)`可以将他们都返回来。
+
+```
+let o = { 
+ [Symbol('foo')]: 'foo val', 
+ [Symbol('bar')]: 'bar val', 
+ baz: 'baz val', 
+ qux: 'qux val' 
+}; 
+
+console.log(Object.getOwnPropertySymbols(o)); 
+// [Symbol(foo), Symbol(bar)] 
+console.log(Object.getOwnPropertyNames(o)); 
+// ["baz", "qux"] 
+console.log(Object.getOwnPropertyDescriptors(o)); 
+// {baz: {...}, qux: {...}, Symbol(foo): {...}, Symbol(bar): {...}} 
+console.log(Reflect.ownKeys(o)); 
+// ["baz", "qux", Symbol(foo), Symbol(bar)]
+```
 
 # 流控制语句
 
