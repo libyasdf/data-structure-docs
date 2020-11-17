@@ -58,12 +58,12 @@ function printRaw(strings) {
 
  for (const string of strings) { 
      // 真实的符号
- console.log(string); 
+    console.log(string); 
  } 
 
  for (const rawString of strings.raw) { 
     // 原本的样子 
- console.log(rawString); 
+     console.log(rawString); 
  } 
 }
 
@@ -88,10 +88,13 @@ let o = {
 
 console.log(Object.getOwnPropertySymbols(o)); 
 // [Symbol(foo), Symbol(bar)] 
+
 console.log(Object.getOwnPropertyNames(o)); 
 // ["baz", "qux"] 
+
 console.log(Object.getOwnPropertyDescriptors(o)); 
 // {baz: {...}, qux: {...}, Symbol(foo): {...}, Symbol(bar): {...}} 
+
 console.log(Reflect.ownKeys(o)); 
 // ["baz", "qux", Symbol(foo), Symbol(bar)]
 ```
