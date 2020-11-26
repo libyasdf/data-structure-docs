@@ -101,9 +101,65 @@ react则提供对应的API，通过我们操作API，让最新数据渲染视图
 
 阿里 UmiJS
 
-### 
+### 在全局安装脚手架
 ```
-npm i -g create-react-app // 在全局安装脚手架
+npm i -g create-react-app
+create-react-app liby-react-project
+```
+默认安装了
+- react
+- react-dom(开发html页面)
+- react-native(开发手机端)
+- react-scripts 
 
 
 ```
+sudo npm install yarn -g
+// mac 加 sudo
+```
+
+
+>对于隐藏的配置项
+
+在vue中使用vue.config.js进行覆盖配置（链式写法）  
+react中`npm run eject`或`yarn eject`   
+在放开eject之前，的错误提示，解决方式：
+```
+git add .
+git commit -am “Save before ejecting”
+```
+设置环境变量
+```
+Windows
+"start": "set PORT=8080&node scripts/start.js",
+
+Mac
+"start": "PORT=8080 node scripts/start.js",
+```
+改变端口值
+
+# index.html
+
+1. 默认情况下，所有资源和和编写的模块都会放到src下。webpack本身就是打包src目录，根据index.js的依赖打包在一起。
+
+1. 但有些东西还是写在index.html中。  
+#### 首页白屏 
+- （可以将loading放在index.html中）
+- 资源做304缓存
+
+#### 有些不支持（commonJS/ESModule）规范，无法import的模块
+- 在html中，用script导入进来
+- 直接放公共资源（就会脱离webpack打包，不会被打包在一起）  
+
+### 配置向后兼容
+
+IE6 7 8，react vue完全不兼容。
+
+IE10 11
+vue
+- browsersList  
+|- [github browserslist](https://github.com/browserslist/browserslist)  
+|- [浏览器版本覆盖率](https://browserl.ist)  
+- Polyfill (可以import进来，也可以在webpack里面配)
+|- 兼容es7语法
+|- react-app-polyfill
