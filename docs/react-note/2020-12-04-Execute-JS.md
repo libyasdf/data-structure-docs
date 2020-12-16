@@ -79,3 +79,38 @@ var a = 12,
     先b -> 12，然后a -> 12
 
 [运算符优先级](https://developer.mozilla.org/zh-CN/docs/web/javascript/reference/operators/operator_precedence)  
+
+
+# 底层执行机制
+
+[例题](20201206/1.png)  
+
+```
+var a = {n: 1};
+var b = a;
+a.x = a = {n: 2};
+console.log(a.x);
+console.log(b);
+```
+
+### PS：
+
+1. 要注意的是，「.」的优先级要高。所以`a.x = a = {n: 2}`赋值的时候，要先赋值给`a.x`
+
+1. 先创建值，在创建变量
+
+1. **全局上下文**只能在页面关闭的时候，出栈释放。（或页面刷新）
+
+# GO —— Global Object
+
+_加载页面_ 的时候就会创建GO，浏览器供JS调用的API，_都放在这里_。
+
+1. GO是一个Heap，区别于全局变量对象（VOG）
+
+1. [关系图](20201206/1.png)   
+
+1. 两者之间的联系靠的是`window`，浏览器在VOG中创建了window这个变量，它指向GO。
+
+1. BOM大多都在GO中
+
+
