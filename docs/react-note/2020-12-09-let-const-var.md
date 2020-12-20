@@ -1,6 +1,6 @@
 ---
 order: 12
-title: let var const 区别
+title: let var const 区别 变量提升
 group:
     title: JS
     order: 1
@@ -128,13 +128,14 @@ console.log(n); //->10
 console.log(m); //->Uncaught ReferenceError: m is not defined
 ```
 
-* 在代码块中，首先看是否出现 **let/const/function「特殊」**，如果出现，此时就会形成一个块级私有上下文 
-     *   EC(BLOCK)
-     *     VO(BLOCK): m->20
-*     作用域链:`<EC(BLOCK),EC(G)>` 上级上下文就是代码执行所处的环境
-     *     ->没有自己的THIS，用到的this用的也都是上级上下文中的
-     *     ->没有arguments
-     *     ->没有形参赋值
-     *     ->有变量提升，也只是针对特殊的function
+* 在代码块中，首先看是否出现 **let/const/function「特殊」**，如果出现，此时就会形成一个块级私有上下文   
 
-* 即使产生块级上下文，**对var的操作也是无效**的，「var不受块级上下文的影响」。
+EC(BLOCK)  
+VO(BLOCK): m->20  
+作用域链:`<EC(BLOCK),EC(G)>` 上级上下文就是代码执行所处的环境  
+ ->没有自己的THIS，用到的this用的也都是上级上下文中的  
+ ->没有arguments  
+ ->没有形参赋值  
+ ->有变量提升，也只是针对特殊的function
+
+>即使产生块级上下文，**对var的操作也是无效**的，「var不受块级上下文的影响」。
