@@ -37,7 +37,7 @@ console.log(n); //->undefined
 var n = 10;
 ```
 
-* var存在变量提升的，但是let不存在  
+* var存在变量提升的，但是let/const不存在  
 ```
 console.log(n); //->Uncaught ReferenceError: Cannot access 'n' before initialization
 let n = 10;
