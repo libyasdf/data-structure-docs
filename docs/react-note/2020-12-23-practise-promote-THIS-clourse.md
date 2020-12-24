@@ -122,9 +122,163 @@ console.log(x);
 * 块级上下文 没有this 没有形参赋值 没有arguments
 * this、形参赋值、arguments函数里面都有
 
+## 闭包作用域
+
+[20201211](1.png)  
+
+### arguments
+
+arguments是类数组集合，开辟一个heap，有实参就会创建，与形参无关。
+
+* JS非严格模式下(严格模式下没有这个机制)：初始化arguments -> 形参赋值：
+  + 形参赋值完成后(**只**在这个阶段)
+  + 把arguments类数组集合中的每一项与形参变量每一项建立起映射机制(一个修改，另外一个也会跟着修改)
+
+```
+"use strict";
+var a = 4;
+function b(x, y, a) {
+    console.log(a);
+    arguments[2] = 10;// 映射机制
+    console.log(a);
+}
+a = b(1, 2, 3);
+console.log(a);
+```
+
+非严格模式下：3、10、undefined
+严格模式下：3、3、undefined
+
+```
+function fn(x, y) {
+    /!*
+     * EC(FN)
+     *   作用域链:<EC(FN),EC(G)>
+     *   初始ARGUMENTS: {0:10,length:1} 
+     *   形参赋值:x=10 y=undefined
+     *      「映射关系」  x->arguments[0]
+     *   变量提升:--
+     *!/
+    let arg = arguments;
+    x = 100;
+    console.log(arg[0]); //=>100
+
+    arg[1] = 200;// 映射已经结束 修改arguments也不会同步到形参上
+    console.log(y); //=>undefined
+}
+
+fn(10); 
+```
+### 匿名函数
+
+```
+/!*
+ * EC(G)
+ *   var test;  -> 0x0001
+ *!/
+var test = (function (i) {
+    /!* 
+     * EC(AN)
+     *   作用域链:<EC(AN),EC(G)>
+     *   形参赋值:i=2  ->4
+     *   变量提升:--
+     *!/
+    return function () {
+        /!*
+         * EC(TEST)
+         *   作用域链:<EC(TEST),EC(AN)> 
+         *   初始ARG:{0:5,length:1}
+         *   形参赋值:--
+         *   变量提升:--
+         *!/
+        alert(i *= 2); //=>i=i*2  "4"
+    }; //=>return 0x0001;  [[scope]]:EC(AN)
+})(2);
+test(5);
+```
+
+[20201211](2.png)  
+
+在执行FUNC1时，重构了FUNC，开辟了小函数heap，所以导致第一次执行FUNC形成的上下文无法被释放，形成闭包。
+
+## 匿名函数“具名化”（建议/标准这么去做）
+
+比如：
+
++ 自执行函数
++ 函数表达式 
+  + const fn = function fn(){};
+  + document.body.onclick = function bodyClick(){};
+  + Array.prototype.unique = function unique(){};
++ 回调函数
+
+```
+"use strict";// 
+(function (x) {
+    // ...
+    // 在JS严格模式下不支持，以下的代码
+    console.log(arguments.callee); // 代表函数本身「只能在函数内部使用」
+    console.log(arguments.callee.caller); // 函数执行所在的上下文对应的函数
+})(10);
+```
+
+```
+function fn() {
+    console.log(arguments.callee.caller); //=>b函数「就是在自己上下文中执行的，返回null」
+}
+function b() {
+    fn();
+}
+b();
+```
+
+* 匿名函数具名化和实名函数不是一个概念「具名化的名字不能再函数以外使用」 
+
+```
+(function fn(x) {
+    console.log(fn); //函数本身，这样就可以在函数内部使用了
+    fn();// 可递归，也导致栈溢出
+})(10);
+// 具名化的名字不能再函数以外使用
+console.log(fn); //=>Uncaught ReferenceError: fn is not defined 
+```
+
+* 匿名函数具名化的值，是不允许修改的
+
+```
+(function fn(x) {
+    fn = 10; // 并且值是不允许修改的
+    console.log(fn); //函数
+})(10);
+```
+
+但是
+
+* **具名化的优先级低**，如果这个名字有被当前上下文重新声明过，则以重新声明的为准
+
+```
+(function fn(x) {
+    let fn = 10; // 如果这个名字有被当前上下文重新声明过，则以重新声明的为准
+    console.log(fn); //=>10
+})(10);
+或者：
+(function fn(fn) {
+    fn = 10; // 形参也相当于重新声明
+    console.log(fn); //=>10
+})(10);
+```
+
+## 实现函数fn，让其具有如下功能（百度二面）
+
+```
+let res = fn(1,2)(3);
+console.log(res); //=>6  1+2+3
+```
+
 # 调试技巧
 
 debugger;
 
 chrome sources 中 右侧 Scope里面Block(块级上下文) 与 Global(window)
 
+看作用域`dir(b)`里面的`[[scope]]`
