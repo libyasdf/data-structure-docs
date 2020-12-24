@@ -359,7 +359,7 @@ Array.prototype.reduce = function reduce(callback, initial) {
         len = self.length;
     if (typeof initial === "undefined") {
         initial = self[0];
-        i = 1;
+        i = 1;// 是否有初始值，决定了迭代的次数
     }
     // 迭代数组每一项   
     for (; i < len; i++) {
@@ -369,6 +369,7 @@ Array.prototype.reduce = function reduce(callback, initial) {
     return initial;
 };
 
+// reduceRight实现
 Array.prototype.reduceRight = function reduceRight(callback, initial) {
     let self = this;
     self = self.reverse();
@@ -383,6 +384,8 @@ let total = arr.reduce((result, item, index) => {
 }, 100);
 console.log(total);
 ```
+## THIS
+
 
 # 调试技巧
 
