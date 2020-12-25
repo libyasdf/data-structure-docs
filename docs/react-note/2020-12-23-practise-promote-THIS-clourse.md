@@ -8,7 +8,7 @@ group:
 
 # 习题
 
-(file:///Users/baiyueli/Desktop/2020年08期在线JS高级/作业/01.闭包作用域作业.html)
+(/2020年08期在线JS高级/作业/01.闭包作用域作业.html)
   
 ## 变量提升
 
@@ -201,6 +201,28 @@ test(5);
 
 在执行FUNC1时，重构了FUNC，开辟了小函数heap，所以导致第一次执行FUNC形成的上下文无法被释放，形成闭包。
 
+[20201108](1.js/png)  
+
+>去第七期里找图
+
+区分：  
+* xxx()函数执行(上下文中的某个变量:存储的值函数)去执行
+* 对象xxx()成员访问
+
+```
+function fun(n, o) {
+    console.log(o);
+    return {
+        fun: function (m) {
+            return fun(m, n);
+        }
+    };
+}
+var c = fun(0).fun(1);
+c.fun(2);
+c.fun(3);
+```
+
 ## 匿名函数“具名化”（建议/标准这么去做）
 
 比如：
@@ -386,6 +408,51 @@ console.log(total);
 ```
 ## THIS
 
+[20201106](1.js)  
+
+* EC（AN） 作用域筵:<EC(AN),EC(G)>
+  + 初始THIS :window 非严格模式（严格模式下undefined）
+  + 形参赋值:num=20
+  + 变量提升:--
+
+```
+var num = 10;
+var obj = {
+    num: 20
+};
+obj.fn = (function (num) {
+    // EC（AN）闭包
+    this.num = num * 3;
+    num++;// 私有变量num = 20 => 21（区分作用域链上的this 与 私有变量）
+    return function (n) {
+        this.num += n;
+        num++;
+        console.log(num);
+    };// obj. fn = 0x001; [ [scope]] :EC (AN)
+})(obj.num);
+var fn = obj.fn;// fn = 0x001
+fn(5);
+obj.fn(10);
+console.log(num, obj.num);
+```
+* 函数中的THIS是谁，和函数在哪定义的以及在哪执行的都没有关系，按照总结的规律去分析执行主体即可。
+
+* this只看最后一个「.」不往上找
+
+```
+(function () {
+    var val = 1;
+    var json = {
+        val: 10,
+        dbl: function () {
+            val *= 2;
+        }
+    };
+    json.dbl();
+    alert(json.val + val);
+})();
+```
+* 区分this.val 与直接val 的查找问题（`val *= 2`不带this的val是变量，json下的对象的属性）
 
 # 调试技巧
 
