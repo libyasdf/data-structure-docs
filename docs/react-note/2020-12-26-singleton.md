@@ -2,7 +2,7 @@
 order: 16
 title: 高阶编程技巧
 group:
-    title: 单例设计模式 惰性函数
+    title: 单例设计模式 惰性函数 柯理化函数
     order: 1
 ---
 
@@ -96,3 +96,71 @@ weatherModule.init();
 
 # 惰性函数
 
+```
+body :after {
+
+}
+```
+获取样式使用`window.getComputedStyle(document.body,'after')`，after可以不写，或者写null。`window.getComputedStyle(document.body,'after')['width']`可以获取某一个值。
+
+```
+function getCss(element, attr) {
+    // 处理兼容
+    if (window.getComputedStyle) {
+        return window.getComputedStyle(element)[attr];
+    }
+    return element.currentStyle[attr];
+}
+```
+
+`document.body.getBoundingClientRect`获得浏览器当前窗口可视化交叉信息。
+
+* 存在性能上的问题，每次都需要判断兼容，达不到“懒”的效果
+
+优化：
+```
+let utils = (function () {// 自执行函数只执行一次
+    let compatible = window.getComputedStyle ? true : false;
+
+    const getCss = function getCss() {
+        // 避开了判断
+        if (compatible) {
+            return window.getComputedStyle(element)[attr];
+        }
+        return element.currentStyle[attr];
+    };
+
+    return {
+        getCss
+    };
+})();
+```
+
+### 最后进化：
+
+* 需求：一个超级复杂的业务函数，而且会被执行N次，后续执行，依然想使用第一次执行处理好的逻辑。这样我们不期望每一次执行，逻辑都重新判断一下，此时基于惰性思想「函数重构」可以实现性能的优化。
+
+```
+function getCss(element, attr) {
+    if (window.getComputedStyle) {
+        // 重写了getCss
+        // 产生了闭包
+        getCss = function (element, attr) {
+            return window.getComputedStyle(element)[attr];
+        };
+    } else {
+        getCss = function (element, attr) {
+            return element.currentStyle[attr];
+        };
+    }
+    // 第一次把重写后的函数执行，获取对应样式
+    return getCss(element, attr);
+}
+
+let body = document.body;
+console.log(getCss(body, 'width'));
+console.log(getCss(body, 'height'));
+```
+
+
+# 柯理化函数
