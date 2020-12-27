@@ -294,6 +294,8 @@ const compose = (...funcs) => {
 
 #### 方案二：
 
+性能不比上面的好，作为理解：
+
 ```
 function compose(...funcs) {
     if (funcs.length === 0) {
