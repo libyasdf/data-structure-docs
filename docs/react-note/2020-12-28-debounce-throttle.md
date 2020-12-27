@@ -5,6 +5,7 @@ group:
     title: debounce throttle
     order: 1
 ---
+[20201213/5.js/6.js](index2.html)  
 
 # 防抖
 
