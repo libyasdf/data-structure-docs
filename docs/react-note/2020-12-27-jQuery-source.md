@@ -2,7 +2,7 @@
 order: 17
 title: jQuery源码分析
 group:
-    title: 单例设计模式 惰性函数 柯理化函数 compose组合函数
+    title: jQuery环境区分 冲突解决 
     order: 1
 ---
 
@@ -30,7 +30,7 @@ group:
       + window -> window
       + noGlobal -> true
 
-```
+```JavaScript
 var B = function (window, noGlobal) {    
     "use strict";
 
@@ -49,7 +49,7 @@ var B = function (window, noGlobal) {
 };
 ```
 
-```
+```JavaScript
 (function (global, factory) {
     "use strict";
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -83,7 +83,7 @@ var B = function (window, noGlobal) {
 
 * 当自己封装方法，供他人使用时，防止命名冲突:
 
-```
+```JavaScript
 (function(){
 
 })()
@@ -95,7 +95,7 @@ var B = function (window, noGlobal) {
 
 * 暴露API「支持浏览器直接导入 & webpack CommonJS模块导入」
 
-```
+```JavaScript
 // 支持浏览器直接导入
 if (typeof window !== "undefined") {
     window.utils = utils;
@@ -108,7 +108,7 @@ if (typeof module === "object" && typeof module.exports === "object") {
 
 * 提前处理环境的方式（模仿jquery）
 
-```
+```JavaScript
 (function (global, factory) {
     "use strict";
     // 提前在这里处理好
@@ -135,7 +135,7 @@ if (typeof module === "object" && typeof module.exports === "object") {
 
 #### jquery如何支持的amd思想
 
-```
+```JavaScript
 if ( typeof define === "function" && define.amd ) {
 	define( "jquery", [], function() {
 		return jQuery;
@@ -154,7 +154,7 @@ if ( typeof define === "function" && define.amd ) {
 
   + 暴露API 
 
-```
+```JavaScript
 function factory(window, noGlobal) {
     "use strict";
     var jQuery = function (selector, context) {
@@ -194,6 +194,6 @@ function factory(window, noGlobal) {
 
 [上述代码在HTML中的触发原因](20201213/index.html)  
 
-```
+```JavaScript
 var j = jQuery.noConflict(true);// 解决冲突 
 ```
