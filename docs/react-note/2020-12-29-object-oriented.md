@@ -5,8 +5,9 @@ group:
     title: new函数的处理过程 
     order: 1
 ---
+# new函数的处理过程
 
-# JS内置类 
+## JS内置类 
     + Number  String  Boolean  Symbol  BigInt
     + Object
        + Object
@@ -26,7 +27,7 @@ divDOM对象（实例） ->  HTMLDivElement  ->  HTMLElement  ->  Element -> Nod
 
 * 操作一个DOM对象，就是操作某一个内置类的实例。
 
-# 自定义类
+## 自定义类
 
 * 自己搞点类，和创建他的实例
 
@@ -81,7 +82,7 @@ console.log(m - 10); //->0  浏览器会默认把对象转换为数字「Symbol.
 // m['valueOf']() 10
 // toString
  ```
-# 特殊：Symbol / BigInt 是不允许被new
+## 特殊：Symbol / BigInt 是不允许被new
 
 `let sy1 = Symbol(AA)`  
 
@@ -90,5 +91,71 @@ console.log(m - 10); //->0  浏览器会默认把对象转换为数字「Symbol.
 
 `Object(sy1)`里面放任何值，都能变成对应的对象类型。
 
-# new函数的处理过程
 
+# 面向对象 细节知识点补充
+
+```javascript
+function Fn(x, y) {
+    let total = x + y;
+    this.x = x;
+    this.y = y;
+    this.say = function () {};
+    return total;
+}
+let f = new Fn(10, 20);
+let f2 = new Fn; //这样也会把Fn执行，也会创建其实例对象
+```
+
+## new Fn  VS  new Fn()
+
+ * 第二个可以传递实参，第一个不能
+ * [运算符优先级的区别](https://developer.mozilla.org/zh-cn/docs/web/javascript/reference/operators/operator_precedence)
+   + new Fn()  20
+   + new Fn  19
+   + 成员访问  obj.xx  20
+
+优先级造成的影响：
+
+```javascript
+new Fn().say()
+// + new Fn()
+// + 实例.say()
+
+new Fn.say();
+//  + Fn.say 值V
+//  + new V() 
+```
+
+### instanceof
+
+```javascript
+console.log(f instanceof Fn); //->true
+console.log(f instanceof Array); //->false
+console.log(f instanceof Object); //->true 
+// 缺点
+console.log(1 instanceof Number); //->false
+console.log(new Number(1) instanceof Number); 
+```
+
+### in / hasOwnProperty
+
+* 验证一个属性是否属于这个对象：attr in object
+* 验证一个属性是否属于这个对象的**私有属性**：[object].hasOwnProperty([attr])
+
+```javascript
+console.log('say' in f); //->true
+console.log(f.hasOwnProperty('say')); //->true
+console.log('toString' in f); //->true
+console.log(f.hasOwnProperty('toString')); //->false
+console.log(f.hasOwnProperty('hasOwnProperty')); //->false
+ ```
+
+### 验证某个属性是否属于对象的公有属性(是它的属性，还不是私有的属性)
+
+ ```javascript
+ function hasPubProperty(obj, attr) {
+    return (attr in obj) && !obj.hasOwnProperty(attr);
+}
+// console.log(hasPubProperty(f, 'hasOwnProperty')); //->true
+ ```
+* 缺点：无法检测某个属性既是私有的，也是公有的
