@@ -228,7 +228,7 @@ new n.constructor(10) // 找所属类
   + 所以，比如`[].push(10)`，只是在描述作用，而不是在描述操作过程，也可以写作：`Array.prototype.push.call([],10)`
 
 
-[20201218/1.js]()  
+[20201218/1.js/2.png](46:05)  
 
 ```javascript
 function fun() {
@@ -237,6 +237,7 @@ function fun() {
         alert(this.a);
     }
 }
+// 重构原型对象
 fun.prototype = {
     b: function () {
         this.a = 20;
@@ -251,6 +252,58 @@ var my_fun = new fun();
 my_fun.b();
 my_fun.c(); 
 ```
+
+* 重构原型对象问题(重构之后，旧的heap被释放)
+  + 丢失了constructor
+  + 原始内置原型对象上的属性和方法也会丢失
+* 引申
+  + 所以内置类的原型是不允许被直接这样重构的，但是可以单独的给原型上的某一个方法重新赋值
+    + `Array.prototype={}`没用的
+    + `Array.prototype.push = function(){}`可以的
+    + `Array.prototype.myUnique = function(){}`可以的: 基于内置类原型扩展方法
+* 解决方式
+  + 方案一[20201218/2.png]
+    + func.prototype = Object.assign(func.prototype,{
+        xxx: xxx,
+        ...
+      })
+  + 方案二[20201218/2-2.png]
+    + `fun.prototype = new fun()`
+
+### Object.assign
+
+```javascript
+let obj1 = {
+    n: 10,
+    m: 20,
+    header: {
+        a: 100
+    }
+};
+let obj2 = {
+    x: 10,
+    m: 30,
+    header: {
+        b: 200
+    }
+}; 
+```
+* obj2覆盖obj1：只实现浅比较（浅合并）：只对第一级合并
+  + `let obj = Object.assign(obj1, obj2)`
+
+```javascript
+console.log(obj);
+console.log(obj === obj1); //true 返回的不是新对象，而是原始的obj1对象
+console.log(obj === obj2); //false
+```
+
+* 返回的是obj1，obj1被改了。(返回全新object方式如下)
+
+```javascript
+let obj = Object.assign({}, obj1, obj2);
+console.log(obj); //->返回的是第一个参数「也就是全新的一个对象」
+```
+
 
 # NOTE
 
