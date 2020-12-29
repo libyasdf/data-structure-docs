@@ -2,7 +2,7 @@
 order: 19
 title: 面向对象基础知识
 group:
-    title: new函数的处理过程 
+    title: new函数的处理过程 原型和原型链处理机制
     order: 1
 ---
 # new函数的处理过程
@@ -159,3 +159,101 @@ console.log(f.hasOwnProperty('hasOwnProperty')); //->false
 // console.log(hasPubProperty(f, 'hasOwnProperty')); //->true
  ```
 * 缺点：无法检测某个属性既是私有的，也是公有的
+
+# 原型和原型链处理机制
+
+![prototype](./img/20201216-2.png)   
+
+ ```javascript
+function Fn() {
+    this.x = 10;
+    this.y = 20;
+    this.say = function () {};
+}
+Fn.prototype.say = function () {};
+Fn.prototype.eat = function () {};
+
+let f1 = new Fn;
+let f2 = new Fn;
+
+console.log(f1 === f2); //->false
+console.log(f1.x === f2.x); //->true  比较属性值「原始值」
+console.log(f1.say === f2.say); //->false  比较属性值「对象」(地址)
+```
+
+# 练习题
+
+[20201218/1.png](27原型重构的一些知识)  
+
+```javascript
+function Fn() {
+    this.x = 100;
+    this.y = 200;
+    this.getX = function () {
+        console.log(this.x);
+    }
+}
+Fn.prototype.getX = function () {
+    console.log(this.x);
+};
+Fn.prototype.getY = function () {
+    console.log(this.y);
+};
+let f1 = new Fn;
+let f2 = new Fn;
+console.log(f1.getX === f2.getX);
+console.log(f1.getY === f2.getY);
+console.log(f1.__proto__.getY === Fn.prototype.getY);
+console.log(f1.__proto__.getX === f2.getX);
+console.log(f1.getX === Fn.prototype.getX);
+console.log(f1.constructor);
+console.log(Fn.prototype.__proto__.constructor);
+f1.getX();
+f1.__proto__.getX();
+f2.getY();
+Fn.prototype.getY();
+```
+
+* 箭头函数、QF函数、大部分内置的方法函数(写在类原型.上的)没有prototype，这样就不存在new执行。
+
+* `f1.hasOwnProper(...)`基于原型链查找机制，找到`Object.prototype.hasOwnProperty`，并且把找到的这个方法hasOwnProperty执行，方法中的this是f1，所以检测某个属性「第一个参数」是否为f1对象「this」的私有属性 => `Object.prototype.hasOwnProperty.call(f1,'xx')`
+
+```javascript
+let n = 10;
+new n.constructor(10) // 找所属类
+// => Number{10}
+```
+
+* this在原型链查找中的应用，`f1.hasOwnProperty()`this为f1，以前面的「.」为准。`Object。prototype.hasOwnProperty.call(f1)`则是直接查找到方法，然后用call改this。
+  + 所以，比如`[].push(10)`，只是在描述作用，而不是在描述操作过程，也可以写作：`Array.prototype.push.call([],10)`
+
+
+[20201218/1.js]()  
+
+```javascript
+function fun() {
+    this.a = 0;
+    this.b = function () {
+        alert(this.a);
+    }
+}
+fun.prototype = {
+    b: function () {
+        this.a = 20;
+        alert(this.a);
+    },
+    c: function () {
+        this.a = 30;
+        alert(this.a)
+    }
+}
+var my_fun = new fun();
+my_fun.b();
+my_fun.c(); 
+```
+
+# NOTE
+
+* __proto__被IE保护，不可使用。
+
+* 没有的，顺着__proto__找。
