@@ -269,6 +269,25 @@ my_fun.c();
       })
   + 方案二[20201218/2-2.png]
     + `fun.prototype = new fun()`
+    
+```javascript
+function Fn(obj, extend) {
+    if (extend) {
+        for (let key in obj) {
+            this[key] = obj[key];
+        }
+        return;
+    }
+    this.a = 100;
+    this.b = function () {};
+}
+Fn.prototype.c = function () {};
+Fn.prototype = new Fn({
+    x: 100,
+    getX: function () {}
+}, true);
+let f = new Fn;
+```
 
 ### Object.assign
 
