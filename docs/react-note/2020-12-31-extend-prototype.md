@@ -98,6 +98,89 @@ new new Foo().getName();
 * 构造函数中，只有this.xxx = xxx才会和实例有关系。
 * `new Foo`没有()，优先级19；`new Foo()`优先级20。
 
+# 基于ES6创造类的语法
+
+## ES5写法
+
+```javascript
+function Fn(x) {
+    // 实例的私有属性和方法
+    this.x = x;
+    this.y = 200;
+}
+// 原型链上共调用的属性方法
+Fn.prototype.z = 300;
+Fn.prototype.getX = function () {};
+// 静态私有属性
+Fn.m = 400;
+Fn.getM = function () {};
+// 执行方式
+Fn.getM();
+Fn(100);
+new Fn(100);
+```
+
+## ES6新写法
+
+```javascript
+class Fn {
+    constructor(x) {
+        this.x = x;
+        // this.y = 200;
+    }
+    y = 200; //ES7的写法：设置的是私有的属性，相当于`this.y = 200`
+
+    //设置公有方法，Fn.prototype
+    getX() {} // 只能这么写，没有prototype
+    // getX = function(){}// 不能这么写 变成私有的了
+    // getX = () => {} // react可以这么写，但是原声不支持
+
+    //---- 设置静态私有属性方法
+    static m = 400;
+    // static getM = function () {} //有prototype
+    static getM() {} //没有prototype
+}
+
+// 公有的属性，只能外面单独加
+Fn.prototype.z = 300; 
+
+Fn(); //=>Uncaught TypeError: Class constructor Fn cannot be invoked without 'new' 基于class创建的类只能被new执行
+
+console.dir(Fn.getM);// 能输出，这种写法没有prototype，所以此静态私有的方法不能被new
+console.log(Fn.getM);// 能输出，这种写法没有prototype
+
+let f = new Fn(100);
+console.log(f);
+```
+
+### 类似延伸：
+```javascript
+let obj = {
+    fn: function () {}, // 有prototype
+    fn() {} // 没有prototype
+};
+```
+
+
+```javascript
+function Modal(x,y){
+    this.x=x;
+    this.y=y;
+}
+Modal.prototype.z=10;
+Modal.prototype.getX=function(){
+    console.log(this.x);
+}
+Modal.prototype.getY=function(){
+    console.log(this.y);
+}
+Modal.n=200;
+Modal.setNumber=function(n){
+    this.n=n;
+};
+let m = new Model(10,20);
+```
+
 # NOTE:
 
 * this所代表的值一定是对象  
