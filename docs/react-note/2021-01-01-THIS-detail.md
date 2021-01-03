@@ -274,3 +274,107 @@ proxy();
 
 # call bind 方法rewrite
 
+## bind
+
+```javascript
+Function.prototype.bind = function bind(context, ...params) {
+    // this(self)->fn  context->obj  params->[10,20]
+    if (context == null) context = window;// == 可以等于undefined/null
+    let self = this;// 注意this的保存
+
+    return function proxy(...args) {// curry的应用
+        // args->存储执行proxy传递的值，例如：ev事件对象
+        params = params.concat(args);
+        return self.call(context, ...params);
+    };
+};
+```
+
+* （bind不兼容IE678）兼容IE678写法：
+
+```javascript
+Function.prototype.bind = function bind(context) {
+    if (context == null) context = window;
+    var params = [].slice.call(arguments, 1),
+        self = this;
+    return function proxy() {
+        var args = [].slice.call(arguments);
+        params = params.concat(args);
+        return self.apply(context, params);
+    };
+};
+
+function fn(x, y, ev) {
+    console.log(this, x, y, ev);
+    return x + y;
+}
+let obj = {
+    name: 'obj'
+};
+// document.onclick = function (ev) {
+//     // this->document
+//     fn.call(obj, 10, 20, ev);
+// };
+document.onclick = fn.bind(obj, 10, 20);
+//   + document.onclick = proxy
+```
+
+## call rewrite
+
+* call的原理: 就是把`context`「要改变的this对象obj」和`self`「要执行的函数fn」之间建立关系
+
+```javascript
+Function.prototype.call = function call(context, ...params) {
+    // this(self)->fn  context->obj  params->[10,20]
+    context == null ? context = window : null;
+    // 原始值类型无法加属性，所以处理一下
+    if (!/^(object|function)$/i.test(typeof context)) context = Object(context);
+
+    let self = this,
+        key = Symbol('KEY'),// 保证唯一，不与原始属性冲突
+        result;
+    context[key] = self;
+    result = context[key](...params);
+    delete context[key];// 用完了记得删除
+    return result;
+};
+
+function fn(x, y) {
+    console.log(this, x, y);
+    return x + y;
+}
+let obj = {
+    name: 'obj',
+    // call的原理 就是把context「要改变的this对象obj」和self「要执行的函数fn」之间建立关系
+    // context.xxx=self;
+    // context.xxx(10,20);
+    // 删除新增的这个属性 delete context.xxx
+    // fn: fn   //->obj.fn(10,20)
+};
+console.log(fn.call(100, 10, 20));
+```
+
+# 作业题
+
+```javascript
+var name = '珠峰培训';
+
+function A(x, y) {
+    var res = x + y;
+    console.log(res, this.name);
+}
+
+function B(x, y) {
+    var res = x - y;
+    console.log(res, this.name);
+}
+B.call(A, 40, 30);
+B.call.call.call(A, 20, 10);
+// 最后一个call执行
+//   + this:B.call.call 「call方法」
+Function.prototype.call(A, 60, 50);
+Function.prototype.call.call.call(A, 80, 70);
+// 最后一个call执行
+//   + this:Function.prototype.call.call 「call方法」
+```
+
