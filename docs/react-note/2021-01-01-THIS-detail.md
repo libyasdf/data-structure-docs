@@ -378,3 +378,7 @@ Function.prototype.call.call.call(A, 80, 70);
 //   + this:Function.prototype.call.call 「call方法」
 ```
 
+![](./img/20201220-3.png)  
+
+* `10+undefined`为NaN
+* this为10没有name，`this.name`为undefined
