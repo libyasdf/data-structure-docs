@@ -5,7 +5,7 @@ group:
     title: jQuery环境区分 冲突解决 
     order: 1
 ---
-
+（20201213）
 # jQuery环境区分
 
  * JS代码执行的环境：
@@ -19,7 +19,7 @@ group:
     + 小程序
 
 `var A = typeof window !== "undefined" ? window : this;`
-* 如果A===window：说明是浏览器、webview中运行
+* 如果A===window：说明是在浏览器、webview中运行
 * 如果是在Node环境下运行，A可能是Global，也可能是当前模块
 
 
@@ -53,7 +53,7 @@ var B = function (window, noGlobal) {
 (function (global, factory) {
     "use strict";
     if (typeof module === "object" && typeof module.exports === "object") {
-        // module & module.exports CommonJS模块规范「Node」
+        // module & module.exports 是CommonJS模块规范「Node」
         module.exports = global.document ?
             // 即支持CommonJS规范，也有window 例如：sea.js  例如：webpack工程化环境
             // =>module.exports=jQuery;整体相当于这样
