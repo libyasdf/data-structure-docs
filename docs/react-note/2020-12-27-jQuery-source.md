@@ -507,3 +507,15 @@ let $box = $('#box');// 只创建一个实例
 $box.addClass('active');
 $box.siblings().removeClass('active');
 ```
+
+# each方法的分析和封装 （20201225/lib/utils.js）
+
+内置循环机制：
+```javascript
+$('*').addClass('box')
+
+$("*").each(function(){
+    var $self = $(this);
+    $self.addClass('box')
+})
+```
