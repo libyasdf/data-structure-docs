@@ -519,3 +519,191 @@ $("*").each(function(){
     $self.addClass('box')
 })
 ```
+
+# extend和对象的深浅拷贝合并（20201227）
+
+1. 向jQuery的prototype和对象上扩展属性和方法
+
+```javascript
+$.extend({ // 给jQuery对象扩展xxx属性方法 -> 用的时候，这样 $.xxx() -> 完善类库
+    xxx() {}
+});
+/* fn是jq的原型，写在原型上给实例用 */
+$.fn.extend({ // 给jQuery.prototype扩展xxx方法 -> $().xxx() -> JQ插件编写
+    xxx() {}
+}); 
+
+// $.fn 给实例用
+// $() 给DOM用
+// $ 一般的工具类方法
+
+// 封装插件的行为
+$.fn.extend({
+    buttonClick() {
+        // this -> JQ实例
+        // jq的实例，前面写上$
+        let $self = this;
+        $self.click(function () {
+            $self.css('background', 'lightblue');
+
+            let text = $self.html();
+            $self.html(text + text);
+        });
+    }
+});
+
+let $btn1 = $('#btn1'),
+    $btn2 = $('#btn2');
+$btn1.buttonClick();
+$btn2.buttonClick(); 
+```
+
+
+2. 实现对象和对象之间的比较和合并「深合并、浅合并」
+
+```javascript
+let obj1 = {
+    name: 'zhufeng',
+    age: 12,
+    headers: {
+        token: 'javascript',
+        x: 200,
+        y: {
+            n: 10
+        }
+    }
+};
+
+let obj2 = {
+    name: 'zhouxiaotian',
+    headers: {
+        token: 'good good study',
+        score: 100,
+        y: {
+            m: 20
+        }
+    },
+    height: 180
+};
+
+let obj3 = {
+    age: 18,
+    height: 190,
+    weight: '60KG',
+    headers: {
+        name: '哇咔咔'
+    }
+};
+
+let obj = _.merge(true, obj1, obj2, obj3);
+console.log(obj === obj1, obj);
+```
+
+```javascript
+// true 深合并
+let obj = $.extend(true, obj1, obj2);
+console.log(obj === obj1, obj);
+
+console.log($.extend(obj1, obj2, obj3));
+console.log($.extend({}, obj1, obj2, obj3));
+
+// 浅合并，等价于Object.assign
+let obj = $.extend(obj1, obj2);
+console.log(obj === obj1, obj);
+
+// 基于浅比较的合并：只比较第一级结构，从而进行合并「浅合并」
+let obj = Object.assign(obj1, obj2);
+console.log(obj === obj1, obj);
+```
+
+
+```javascript
+* 自己写一个支持用户自定义扩展属性和方法的extend
+// 依赖 utils.js 里面有一些工具方法
+(function (_) {// _ 代表 util.js
+    function ModalPlugin() {}
+    // ...
+
+    ModalPlugin.extend = ModalPlugin.prototype.extend = function (obj) {
+        var self = this;
+        _.each(obj, function (value, key) {
+            self[key] = value;
+        });
+        return self;
+    };
+
+    // ...
+})(utils);
+ModalPlugin.extend({
+
+});
+ModalPlugin.prototype.extend({
+
+}); 
+```
+
+```javascript
+jQuery.extend = jQuery.fn.extend = function () {
+    var options, name, src, copy, copyIsArray, clone,
+        target = arguments[0] || {}, //传递的第一项
+        i = 1,
+        length = arguments.length, //传递实参的个数
+        deep = false; //是否为深比较合并
+
+    // $.extend(true,obj1,obj2...)
+    if (typeof target === "boolean") {
+        deep = target;
+        target = arguments[i] || {}; //target -> 传递的第一个对象
+        i++; //i -> 2
+    }
+    
+    if (typeof target !== "object" && !isFunction(target)) target = {};
+
+    // $.extend(obj) || $.fn.extend(obj) || $.extend(true,obj)
+    if (i === length) {
+        target = this; //target -> $/$.fn
+        i--; //i -> 0/1 传递进来obj在ARGS集合中的索引
+    }
+
+    for (; i < length; i++) {
+        // $/$.fn.extend(obj) -> target:$/$.fn  options:obj
+        // $.extend([true?],obj1,obj2,obj3...) -> target:obj1  options:obj2/obj3/...
+        if ((options = arguments[i]) != null) {// 先赋值再判断
+            // 把options中的每一项替换target中的
+            for (name in options) {
+                copy = options[name]; //copy -> options每一项的值
+
+                // Prevent Object.prototype pollution
+                // Prevent never-ending loop
+                if (name === "__proto__" || target === copy) {
+                    continue;// 防止无限递归
+                }
+                // 对象和数组才能深合并
+                if (deep && copy && (jQuery.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+                    // 只有 options 中获取的这一项是 纯粹的对象/数组 才有必要进行深度比较合并
+                    src = target[name]; // copy->options这一项值  src->target中的这一项值
+                    if (copyIsArray && !Array.isArray(src)) {
+                        clone = [];
+                    } else if (!copyIsArray && !jQuery.isPlainObject(src)) {
+                        clone = {};
+                    } else {
+                        clone = src;
+                    }
+                    // clone 替换 src「target中的这一项值」
+                    copyIsArray = false;
+                    // 递归
+                    target[name] = jQuery.extend(deep, clone, copy);
+                } else if (copy !== undefined) {
+                    // 浅合并:只需要把options中的每一项copy，替换target中当前同名这一项即可
+                    target[name] = copy;
+                }
+            }
+        }
+    }
+    return target;
+};
+```
+## 参数处理
+
+非想要的格式，变成想要的格式
+`arguments[0] || {}`
