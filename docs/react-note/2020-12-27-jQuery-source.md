@@ -559,7 +559,7 @@ $btn2.buttonClick();
 ```
 
 
-2. 实现对象和对象之间的比较和合并「深合并、浅合并」
+# 实现对象和对象之间的比较和合并「深合并、浅合并」
 
 ```javascript
 let obj1 = {
@@ -707,3 +707,6 @@ jQuery.extend = jQuery.fn.extend = function () {
 
 非想要的格式，变成想要的格式
 `arguments[0] || {}`
+
+# 20201227/lib/utils.js
+
