@@ -1,6 +1,6 @@
 ---
 order: 18
-title: jQuery源码分析
+title: debounce throttle
 group:
     title: debounce throttle
     order: 1
