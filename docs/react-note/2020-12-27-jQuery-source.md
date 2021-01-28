@@ -710,3 +710,172 @@ jQuery.extend = jQuery.fn.extend = function () {
 
 # 20201227/lib/utils.js
 
+* extend和对象的深浅拷贝合并(2)
+
+```javascript
+    // 实现「数组/纯粹对象」深浅合并
+    var merge = function merge() {
+        var options, src, copyIsArray,
+            target = arguments[0] || {},
+            i = 1,
+            length = arguments.length,
+            deep = false;
+        if (typeof target === "boolean") {
+            deep = target;
+            target = arguments[i] || {};
+            i++;
+        }
+        if (typeof target !== "object" && !isFunction(target)) target = {};
+        for (; i < length; i++) {
+            if ((options = arguments[i]) != null) {
+                each(options, function (copy, name) {
+                    // 防止死递归
+                    if (target === copy) return;
+                    copyIsArray = Array.isArray(copy);
+                    if (deep && copy && (isPlainObject(copy) || copyIsArray)) {
+                        src = target[name];
+                        if (copyIsArray && !Array.isArray(src)) {
+                            src = [];
+                        } else if (!copyIsArray && !isPlainObject(src)) {
+                            src = {};
+                        }
+                        // 
+                        target[name] = merge(deep, src, copy);
+                        return;
+                    }
+                    // 
+                    target[name] = copy;
+                });
+            }
+        }
+        return target;
+    };
+```
+
+## copy
+
+### 浅拷贝
+
+1. 最low
+```
+let copy = {};
+_.each(obj, (value, key) => copy[key] = value);
+```
+
+2. 基于ES6
+```
+let copy = {
+    ...obj
+};
+let copy = Object.assign({}, obj);
+```
+
+3. 数组中的拷贝，方法更多
+```
+let arr = [10, 20];
+let copy = [...arr];
+copy = arr.slice(0);
+```
+
+### 数组和对象的深拷贝：
+
+* 先JSON.stringify / 后JSON.parse 
+  + 在JSON.stringify变为字符串的时候，很多类型的属性值都会有问题（缺点）
+    + 正则/Error->{}
+    + 日期->字符串
+    + undefined/function/symbol->丢了
+    + bigint->直接报错
+
+>浏览器在parse的时候，会重新开辟所有需要的内存空间
+
+自己实现：
+
+* 正则/日期 new -> 深clone
+  + 
+
+* 函数 
+
+  ```javascript
+  // “深”clone - 包一层
+  let fn2 = function(x) {
+      return fn(x);
+  }
+  ```
+* 引用类型
+  + Object(time) -> 浅克隆
+
+```javascript
+    // 实现「数组/纯粹对象,其余类型的值,直接浅克隆即可」深浅克隆
+    var clone = function clone(deep, obj, cache) {
+        var type, Ctor, copy;
+        if (typeof deep !== "boolean") {
+            obj = deep;
+            deep = false;
+        }
+
+        // 死递归的优化处理
+        !Array.isArray(cache) ? cache = [] : null;
+        if (cache.indexOf(obj) > -1) return obj;
+        cache.push(obj);
+
+        // 原始值类型直接返回
+        if (obj == null) return obj;
+        if (!/^(object|function)$/.test(typeof obj)) return obj;
+
+        // 特殊值的处理
+        type = toType(obj);
+        Ctor = obj.constructor;
+        if (/^(number|string|boolean|regexp|date)$/.test(type)) return new Ctor(obj);
+        if (type === "error") return new Ctor(obj.message);
+        if (type === "function") {
+            // 包一层
+            return function proxy() {
+                var params = [].slice.call(arguments);// arguments变数组
+                return obj.apply(this, params);// 传参
+            };
+        }
+        // 不是「数组」和「纯粹对象」，就不用往下走
+        if (!isPlainObject(obj) && !Array.isArray(obj)) return obj;
+        // 纯粹对象和数组
+        copy = new Ctor();
+        each(obj, function (value, key) {
+            if (deep) {
+                // 深拷贝
+                copy[key] = clone(deep, value, cache);
+                return;
+            }
+            // 浅拷贝
+            copy[key] = value;
+        });
+        return copy;
+    };
+```
+
+调用
+
+```javascript
+let obj = {
+    x: 100,
+    y: 200,
+    score: [100, 200],
+    detai: {
+        english: 100,
+        math: 200,
+        total: {
+            1: 100,
+            2: 200
+        }
+    },
+    queryDetail: function () {
+        console.log(this.detai);
+    },
+    reg: /^\d+$/,
+    time: new Date,
+    pai: null,
+    zou: undefined,
+    xxx: new Error()
+};
+obj.obj = obj;
+
+let copy = _.clone(true, obj);
+```
