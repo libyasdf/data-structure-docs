@@ -25,7 +25,7 @@ group:
 
 * `function fn(x=0){}`  ES6形参赋值默认值「这就是一个坑」
 
-```
+```javascript
 function fn(x, callback) {
     // x如果不传递，默认值为0
     if (typeof x === "undefined") {
@@ -42,7 +42,7 @@ fn(10, function(){});
 
 [20201209](2.js)  
 
-```
+```javascript
 {
     function foo() {}
     foo = 1;// 私有
@@ -59,7 +59,7 @@ console.log(foo);
 
 [分析图：20201209](1.png)  
 
-```
+```javascript
 debugger;
 /!*
  * EC(G)
@@ -106,7 +106,7 @@ ECM9.2.12
 
  * 小知识点：如果函数私有上下文中的某变量和块级上下文中的某变量一致，则块级上下文的最开始时候，会把函数上下文中的值同步给块级上下文中同名变量一份
  
- ```
+ ```javascript
 debugger;
 var x = 1;
 function func(x, y = function anonymous1(){x = 2}){// 前提 1
@@ -134,7 +134,7 @@ arguments是类数组集合，开辟一个heap，有实参就会创建，与形�
   + 形参赋值完成后(**只**在这个阶段)
   + 把arguments类数组集合中的每一项与形参变量每一项建立起映射机制(一个修改，另外一个也会跟着修改)
 
-```
+```javascript
 "use strict";
 var a = 4;
 function b(x, y, a) {
@@ -149,7 +149,7 @@ console.log(a);
 非严格模式下：3、10、undefined
 严格模式下：3、3、undefined
 
-```
+```javascript
 function fn(x, y) {
     /!*
      * EC(FN)
@@ -171,7 +171,7 @@ fn(10);
 ```
 ### 匿名函数
 
-```
+```javascript
 /!*
  * EC(G)
  *   var test;  -> 0x0001
@@ -236,7 +236,7 @@ c.fun(3);
   + Array.prototype.unique = function unique(){};
 + 回调函数
 
-```
+```javascript
 "use strict";// 
 (function (x) {
     // ...
@@ -246,7 +246,7 @@ c.fun(3);
 })(10);
 ```
 
-```
+```javascript
 function fn() {
     console.log(arguments.callee.caller); //=>b函数「就是在自己上下文中执行的，返回null」
 }
@@ -258,7 +258,7 @@ b();
 
 * 匿名函数具名化和实名函数不是一个概念「具名化的名字不能再函数以外使用」 
 
-```
+```javascript
 (function fn(x) {
     console.log(fn); //函数本身，这样就可以在函数内部使用了
     fn();// 可递归，也导致栈溢出
@@ -269,7 +269,7 @@ console.log(fn); //=>Uncaught ReferenceError: fn is not defined
 
 * 匿名函数具名化的值，是不允许修改的
 
-```
+```javascript
 (function fn(x) {
     fn = 10; // 并且值是不允许修改的
     console.log(fn); //函数
@@ -280,7 +280,7 @@ console.log(fn); //=>Uncaught ReferenceError: fn is not defined
 
 * **具名化的优先级低**，如果这个名字有被当前上下文重新声明过，则以重新声明的为准
 
-```
+```javascript
 (function fn(x) {
     let fn = 10; // 如果这个名字有被当前上下文重新声明过，则以重新声明的为准
     console.log(fn); //=>10
@@ -296,7 +296,7 @@ console.log(fn); //=>Uncaught ReferenceError: fn is not defined
 
 [20201211](2.js)  
 
-```
+```javascript
 let res = fn(1,2)(3);
 console.log(res); //=>6  1+2+3
 ```
@@ -304,7 +304,7 @@ console.log(res); //=>6  1+2+3
  * ...params ES6剩余运算符「获取的结果是一个数组」
  * arguments 获取的结果是一个类数组 
  
-```
+```javascript
 const fn = function fn(...params) {
     return function anonymous(...args) {
         // 合并两次传递的参数 && 求和(题目要求)
@@ -345,7 +345,7 @@ const fn = function fn(...params) {
 
 简化：
 
-```
+```javascript
 const fn = (...params) => (...args) => params.concat(args).reduce((result, item) => result + item);
 let res = fn(1, 2)(3);
 console.log(res); //=>6 
@@ -362,7 +362,7 @@ console.log(res); //=>6
 arr.reduce([callback],[initial])
 + result初始值是[initial]  数组从第一项开始迭代
 
-```
+```javascript
 let arr = [10, 20, 30];
 let total = arr.reduce((result, item, index) => {
     console.log(result, item, index);
@@ -374,7 +374,7 @@ let total = arr.reduce((result, item, index) => {
 
 ### reduce实现
 
-```
+```javascript
 Array.prototype.reduce = function reduce(callback, initial) {
     // this->arr THIS一般是数组的实例(数组)
     if (typeof callback !== "function") throw new TypeError('callback must be a function!');
@@ -417,7 +417,7 @@ console.log(total);
   + 形参赋值:num=20
   + 变量提升:--
 
-```
+```javascript
 var num = 10;
 var obj = {
     num: 20
@@ -441,7 +441,7 @@ console.log(num, obj.num);
 
 * this只看最后一个「.」不往上找
 
-```
+```javascript
 (function () {
     var val = 1;
     var json = {
