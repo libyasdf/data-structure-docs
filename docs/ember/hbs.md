@@ -6,6 +6,8 @@ group:
     order: 1
 ---
 
+# 介绍
+
 ### object
 
 ```hbs
@@ -141,4 +143,69 @@ html-escaped: &amp; &lt; &gt; &quot; &#x27; &#x60; &#x3D;
 ```
 
 Handlebars 不会转义 Handlebars.SafeString
+
+```hbs
+{{bold text}}
+<!-- <b>Isn&#x27;t this great?</b> -->
+```
+
+
+```js
+{ text: "Isn't this great?" }
+// 
+Handlebars.registerHelper("bold", function(text) {
+  var result = "<b>" + Handlebars.escapeExpression(text) + "</b>";
+  return new Handlebars.SafeString(result);
+});
+```
+
+* Handlebars 不会转义 JavaScript 字串。使用 Handlebars 生成 JavaScript（例如内联事件处理程序），可能会产生跨域脚本攻击漏洞。
+
+### 共享模版
+
+```hbs
+{{#each persons}}
+  {{>person person=.}}
+{{/each}}
+<!-- 
+  Nils is 20 years old.
+  Teddy is 10 years old.
+  Nelson is 40 years old.
+   -->
+```
+
+```js
+{
+  persons: [
+    { name: "Nils", age: 20 },
+    { name: "Teddy", age: 10 },
+    { name: "Nelson", age: 40 },
+  ],
+}
+
+Handlebars.registerPartial(
+    "person", 
+    "{{person.name}} is {{person.age}} years old.\n"
+)
+```
+
+# 表达式
+
+### 转回父级上下文
+
+```hbs
+{{#each people}}
+    {{../prefix}} {{firstname}} 
+{{/each}}
+```
+
+```js
+{
+  people: [
+    { firstname: "Nils" },
+    { firstname: "Yehuda" },
+  ],
+  prefix: "Hello",
+}
+```
 
