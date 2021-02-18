@@ -209,3 +209,26 @@ Handlebars.registerPartial(
 }
 ```
 
+### 文字
+
+```js
+{
+  array: [
+    {
+      item: "item1", // {{array.[0].item}}
+      "item-class": "class1",// {{array.[0].[item-class]}}
+    },
+  ],
+  true: "yes",// {{./[true]}}
+}
+```
+
+* 除了以下字符，标识符可以是任何 Unicode 文本：
+  + Whitespace ! " # % & ' ( ) * + , . / ; < = > @ [ \ ] ^ ` { | } ~
+
+* true, false, null 和 undefined 只允许在路径表达式的开头出现。
+
+* 引用一个并非合法的标识符，你可以使用 [。在路径表达式中你不必使用 ] 来关闭它，但其他表达式中是需要的。
+
+* JavaScript 样式的字符串如 " 和 ' 也可用于替代 [。
+
