@@ -127,6 +127,8 @@ Ember.Handlebars.registerHelper()
 
 ### HTML转译
 
+* `{{ }}` 返回的值是 HTML 转义的
+  + 如果一个表达式包含 &，那么返回的 HTML 转义的内 容将会包含 &amp;
 * 不想让 Handlebars 转义某个值使用`{{{}}}`
 
 ```hbs
