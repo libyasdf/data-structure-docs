@@ -53,7 +53,10 @@ group:
 }
 ```
 
-### 自定义
+### 自定义(助手代码)
+
+* 助手代码可以实现一些并非 Handlesbars 语言本身的功能
+* Handlebars 助手代码的**调用**需要一个简单标识符，且可紧接一个或多个参数（**以空格分割**）。每一参数为一个 Handlebars 表达式，且 将会用于上方“基本用法”中相同的方法来计算。
 
 ```hbs
 {{#each people}}
@@ -144,7 +147,9 @@ html-escaped: &amp; &lt; &gt; &quot; &#x27; &#x60; &#x3D;
 { specialChars: "& < > \" ' ` =" }
 ```
 
-Handlebars 不会转义 Handlebars.SafeString
+## 避免助手代码的返回值被 HTML 转义
+
+* Handlebars 不会转义 `Handlebars.SafeString`
 
 ```hbs
 {{bold text}}
@@ -160,10 +165,137 @@ Handlebars.registerHelper("bold", function(text) {
   return new Handlebars.SafeString(result);
 });
 ```
+* 即使当使用 {{ 而非 {{{ 来调用助手代码时，当你的助手代码返回一个 `Handlebars.Safestring` 的实例，返回值也并不会被转义 。你需要留心将所有参数正确地使用 `Handlebars.escapeExpression` 来转义
 
 * Handlebars 不会转义 JavaScript 字串。使用 Handlebars 生成 JavaScript（例如内联事件处理程序），可能会产生跨域脚本攻击漏洞。
 
-### 共享模版
+### 具有多个参数的助手代码
+
+```hbs
+{{link "See Website" url}}
+<!-- { url: "https://yehudakatz.com/" } -->
+```
+
+```js
+Handlebars.registerHelper("link", function(text, url) {
+      var url = Handlebars.escapeExpression(url),
+          text = Handlebars.escapeExpression(text)
+          
+     return new Handlebars.SafeString("<a href='" + url + "'>" + text +"</a>");
+});
+// 输出 <a href='https://yehudakatz.com/'>See Website</a>
+```
+
+## 字面量参数
+
+* true false null undefined 
+
+```hbs
+{{progress "Search" 10 false}}
+{{progress "Upload" 90 true}}
+{{progress "Finish" 100 false}}
+```
+
+```js
+Handlebars.registerHelper('progress', function (name, percent, stalled) {
+  var barWidth = percent / 5
+  var bar = "********************".slice(0,barWidth)            
+  return bar + " " + percent + "% " + name + " " +  (stalled ? "stalled" : "")
+})
+// ** 10% Search 
+// ****************** 90% Upload stalled
+// ******************** 100% Finish 
+```
+
+## 含有 Hash 参数的助手代码
+
+```js
+{{link "See Website" href=person.url class="person"}}
+```
+
+* 最后一个参数 href=people.url class="people" 为传送至助手代码的 Hash 参数
+* Hash 参数可以从最后一个参数 options 获取
+```js
+Handlebars.registerHelper("link", function(text, options) {
+    var attributes = [];
+
+    Object.keys(options.hash).forEach(key => {
+        var escapedKey = Handlebars.escapeExpression(key);
+        var escapedValue = Handlebars.escapeExpression(options.hash[key]);
+        attributes.push(escapedKey + '="' + escapedValue + '"');
+    })
+    var escapedText = Handlebars.escapeExpression(text);
+    
+    var escapedOutput ="<a " + attributes.join(" ") + ">" + escapedText + "</a>";
+    return new Handlebars.SafeString(escapedOutput);
+    // <a class="person" href="https://yehudakatz.com/">See Website</a>
+});
+```
+
+```js
+{
+  person: {
+    firstname: "Yehuda",
+    lastname: "Katz",
+    url: "https://yehudakatz.com/",
+  },
+}
+```
+
+## 奇异
++ 如果助手代码注册时的名称和一个输入的**属性名**重复，则助手代码的优先级更高。如果你想使用输入的属性，请在其名称前加 `./` 或 `this.`。（或是已弃用的 `this/`。）
+
+```hbs
+helper: {{name}}
+data: {{./name}} or {{this/name}} or {{this.name}}
+<!-- { name: "Yehuda" } -->
+```
+
+```js
+Handlebars.registerHelper('name', function () {
+    return "Nils"
+})
+// helper: Nils
+// data: Yehuda or Yehuda or Yehuda
+```
+
+## 子级表达式
+
+* 将内部助手代码调用的返回值作为 外部助手代码的参数传递。子级表达式使用括号定界。
+
+```hbs
+{{outer-helper (inner-helper 'abc') 'def'}}
+```
+
+## 空格控制
+
+* 在括号中添加一个 ~ 字符，可以从任何 Mustache 模板代码块的任何一侧省略模板中的空格。应用后，该侧的所有空格将被删除，直到第一个位于同一侧的 Handlebars 表达式或非空格字符出现。
+
+效果:
+
+```html
+<a href="foo">bar</a><a href="bar">Empty</a>
+```
+
+```hbs
+{{#each nav ~}}
+  <a href="{{url}}">
+    {{~#if test}}
+      {{~title}}
+    {{~^~}}
+      Empty
+    {{~/if~}}
+  </a>
+{{~/each}}
+```
+
+```js
+{
+  nav: [{ url: "foo", test: true, title: "bar" }, { url: "bar" }];
+}
+```
+
+## 共享模版
 
 ```hbs
 {{#each persons}}
@@ -233,4 +365,6 @@ Handlebars.registerPartial(
 * 引用一个并非合法的标识符，你可以使用 [。在路径表达式中你不必使用 ] 来关闭它，但其他表达式中是需要的。
 
 * JavaScript 样式的字符串如 " 和 ' 也可用于替代 [。
+
+# 助手
 
