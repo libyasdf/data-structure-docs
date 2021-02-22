@@ -295,6 +295,12 @@ Handlebars.registerHelper('name', function () {
 }
 ```
 
+## 转义 Handlebars 表达式
+
+* 两种转义：「内联转义」或「RAW 块助手代码」。
+  + 内联转义通过 Mustache 代码块前置 `\` 实现 
+  + RAW 代码块通过使用 `{{{{` 实现——与块助手代码均相同，但区别在于它的子内容被 Handlebars 视为一段字符串。
+
 ## 共享模版
 
 ```hbs
@@ -321,6 +327,33 @@ Handlebars.registerPartial(
     "person", 
     "{{person.name}} is {{person.age}} years old.\n"
 )
+```
+
+### Partials 代码片段
+
+* Handlebars 允许代码片段的复用。代码片段是一段普通的 Handlebars 模板，但它们可以直接由其他模板调用。
+* 必须通过 `Handlebars.registerPartial` 注册。
+
+```hbs
+{{> myPartial}}
+<!-- Hello -->
+```
+
+```js
+Handlebars.registerPartial('myPartial', '{{prefix}}');
+// { prefix: "Hello" }
+```
+
+### 动态代码片段
+
+```hbs
+{{> (whichPartial) }}
+```
+* 子表达式不会解析变量，因此 whichPartial 必须是一个函数
+
+```hbs
+{{> (lookup . 'myVariable') }}
+<!-- { myVariable: "lookupMyPartial" } -->
 ```
 
 # 表达式
@@ -366,5 +399,5 @@ Handlebars.registerPartial(
 
 * JavaScript 样式的字符串如 " 和 ' 也可用于替代 [。
 
-# 助手
+
 
